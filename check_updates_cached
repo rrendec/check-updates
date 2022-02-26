@@ -1,0 +1,23 @@
+#!/bin/bash
+
+CACHE=/var/cache/nrpe
+
+if [[ ! -f $CACHE/check_updates ]]; then
+	echo "CHECK_UPDATES CRITICAL - no cache"
+	exit 2
+fi
+
+age=$(($(date +"%s") - $(stat --format="%Y" $CACHE/check_updates)))
+if [[ $age -gt 86400 ]]; then
+	echo "CHECK_UPDATES WARNING - stale cache ($age seconds)"
+	exit 1
+fi
+
+tmp=$(mktemp -d)
+tar xf $CACHE/check_updates -C $tmp
+cat $tmp/out
+cat $tmp/err >&2
+ret=$(< $tmp/ret)
+rm -rf $tmp
+
+exit $ret

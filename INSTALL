@@ -1,0 +1,9 @@
+mkdir -p /var/cache/nrpe
+chmod 700 /var/cache/nrpe
+chown nrpe: /var/cache/nrpe
+cp check_updates_daemon /usr/local/bin
+cp check_updates_cached /usr/lib64/nagios/plugins
+mkdir -p /usr/local/lib/systemd/system
+cp check-updates.service /usr/local/lib/systemd/system
+systemctl daemon-reload
+systemctl enable --now check-updates.service

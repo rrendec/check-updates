@@ -1,0 +1,13 @@
+[Unit]
+Description=Nagios check_updates cache service
+
+[Service]
+Type=exec
+User=nrpe
+Group=nrpe
+ExecStart=/usr/local/bin/check_updates_daemon
+ExecReload=rm -f /var/cache/nrpe/check_updates
+ExecReload=kill -USR1 $MAINPID
+
+[Install]
+WantedBy=multi-user.target

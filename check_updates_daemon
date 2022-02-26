@@ -1,0 +1,30 @@
+#!/bin/bash
+
+LIB=/usr/lib64/nagios/plugins
+CACHE=/var/cache/nrpe
+TMP=$(mktemp -d)
+
+cleanup() {
+	rm -rf $TMP
+}
+
+signal() {
+	echo "Received signal"
+}
+
+trap cleanup EXIT
+trap signal SIGUSR1
+
+while true; do
+	if [[ -f $CACHE/check_updates ]]; then
+		sleep $(((RANDOM % 30 + 240) * 60)) &
+		cpid=$!
+		wait $cpid || kill $cpid
+	fi
+	echo "Starting cache update"
+	$LIB/check_updates --security-only -t 300 1>$TMP/out 2>$TMP/err
+	echo $? >$TMP/ret
+	tar cf $CACHE/.check_updates.tmp -C $TMP --remove-files out err ret
+	mv -f $CACHE/.check_updates.tmp $CACHE/check_updates
+	echo "Finished cache update"
+done
