@@ -28,3 +28,11 @@ make install
 # Usage
 
 Use the systemd `reload` action to force the real check\_updates to run.
+
+## Sample nrpe configuration
+
+Add the follwing line to `/etc/nagios/nrpe.cfg`:
+
+```
+command[check_updates]=/usr/lib64/nagios/plugins/check_updates_cached
+```
