@@ -10,3 +10,9 @@ install:
 	cp -f check-updates.service /usr/local/lib/systemd/system
 	systemctl daemon-reload
 	systemctl enable --now check-updates.service
+
+%.mod: %.te
+	checkmodule -M -m -o $@ $<
+
+%.pp: %.mod
+	semodule_package -o $@ -m $<

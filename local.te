@@ -1,0 +1,18 @@
+module local 1.0;
+
+require {
+	attribute file_type;
+	type tmp_t;
+	type nrpe_t;
+	class dir { add_name create read remove_name rmdir search write };
+	class file { create getattr open read setattr unlink write };
+}
+
+type nrpe_cache_t;
+typeattribute nrpe_cache_t file_type;
+
+allow nrpe_t nrpe_cache_t:dir search;
+allow nrpe_t nrpe_cache_t:file { getattr open read };
+
+allow nrpe_t tmp_t:dir { add_name create read remove_name rmdir write };
+allow nrpe_t tmp_t:file { create setattr unlink write };

@@ -25,6 +25,18 @@ plugin directly:
 make install
 ```
 
+## SELinux configuration
+
+```
+make local.pp
+# or:
+#   dnf install selinux-policy-devel
+#   make -f /usr/share/selinux/devel/Makefile local.pp
+semodule -i local.pp
+semanage fcontext -m -t nrpe_cache_t /var/cache/nrpe
+restorecon -R /var/cache/nrpe
+```
+
 # Usage
 
 Use the systemd `reload` action to force the real check\_updates to run.
