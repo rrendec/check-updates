@@ -6,7 +6,7 @@ This is a collection of scripts that implement a simple wrapper around the
 It aims to move the time/resource consuming execution of the check\_updates
 plugin out of the context of Nagios or nrpe.
 
-The wapper implements a systemd service that runs the real check\_updates
+The wrapper implements a systemd service that runs the real check\_updates
 plugin periodically and saves the output and exit status to a cache file.
 A new/separate Nagios plugin is implemented as a shell script that simply
 reads back the output from the cache file.
@@ -43,8 +43,19 @@ Use the systemd `reload` action to force the real check\_updates to run.
 
 ## Sample nrpe configuration
 
-Add the follwing line to `/etc/nagios/nrpe.cfg`:
+Add the following line to `/etc/nagios/nrpe.cfg`:
 
 ```
 command[check_updates]=/usr/lib64/nagios/plugins/check_updates_cached
 ```
+
+## For containers
+
+Modify `check_updates_daemon` and add the following option to `check_updates`:
+
+```
+--no-boot-check
+```
+
+This option disables the kernel check, since the kernel package is typically not
+installed inside containers.
