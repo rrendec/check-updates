@@ -21,6 +21,22 @@ plugin directly:
 
 # Installation instructions
 
+## Prerequisites
+
+```shell
+dnf install make tar
+dnf install epel-release
+crb enable
+dnf install nrpe nagios-plugins-check-updates
+```
+
+If SELinux is configured (see below):
+```shell
+dnf install checkpolicy policycoreutils-python-utils
+```
+
+## Installation
+
 ```shell
 make install
 ```
