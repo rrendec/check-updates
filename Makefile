@@ -4,6 +4,7 @@ install:
 	mkdir -p /var/cache/nrpe
 	chmod 700 /var/cache/nrpe
 	chown nrpe: /var/cache/nrpe
+	cp -n sysconfig-check-updates /etc/sysconfig/check-updates
 	cp -f check_updates_daemon /usr/local/bin
 	cp -f check_updates_cached /usr/lib64/nagios/plugins
 	mkdir -p /usr/local/lib/systemd/system

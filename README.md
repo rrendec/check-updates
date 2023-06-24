@@ -67,7 +67,7 @@ command[check_updates]=/usr/lib64/nagios/plugins/check_updates_cached
 
 ## For containers
 
-Modify `check_updates_daemon` and add the following option to `check_updates`:
+Edit `/etc/sysconfig/check-updates` and add the following option to `OPTS`:
 
 ```
 --no-boot-check

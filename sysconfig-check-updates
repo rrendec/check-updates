@@ -1,0 +1,3 @@
+LIB=/usr/lib64/nagios/plugins
+CACHE=/var/cache/nrpe
+OPTS="--security-only -t 300"

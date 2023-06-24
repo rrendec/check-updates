@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CACHE=/var/cache/nrpe
+source /etc/sysconfig/check-updates
 
 if [[ ! -f $CACHE/check_updates ]]; then
 	echo "CHECK_UPDATES CRITICAL - no cache"
