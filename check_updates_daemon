@@ -12,17 +12,6 @@ signal() {
 	echo "Received signal"
 }
 
-# Note: `sleep` is killed with the USR1 signal to avoid printing a job status
-# message to stderr (e.g. "check_updates_daemon: line 44: 12215 Terminated").
-# This is a hack that relies on the fact that job status is not printed if
-# the job dies of a signal that's trapped, and we're already trapping USR1.
-# See notify_of_job_status() in jobs.c for details.
-int_sleep() {
-	sleep $1 &
-	local cpid=$!
-	wait $cpid || kill -USR1 $cpid
-}
-
 trap cleanup EXIT
 trap signal SIGUSR1
 
@@ -33,7 +22,12 @@ delay=$((due > now ? due - now : 1))
 retry=1
 while true; do
 	echo "Sleeping $delay second(s)"
-	int_sleep $delay
+	sleep $delay &
+	cpid=$!
+	# Note: the 2nd `wait` is there to suppress a message like this:
+	#       check_updates_daemon: line 44: 12215 Terminated
+	wait $cpid || kill $cpid && wait $cpid 2>/dev/null
+
 	echo "Starting cache update ($retry)"
 	$LIB/check_updates $OPTS 1>$TMP/out 2>$TMP/err
 	ret=$?
