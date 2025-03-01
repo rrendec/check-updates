@@ -4,16 +4,8 @@ source /etc/sysconfig/check-updates
 
 TMP=$(mktemp -d)
 
-cleanup() {
-	rm -rf $TMP
-}
-
-signal() {
-	echo "Received signal"
-}
-
-trap cleanup EXIT
-trap signal SIGUSR1
+trap "rm -rf $TMP" EXIT
+trap "echo 'Received SIGUSR1'" SIGUSR1
 
 mtime=$(stat -c '%Y' $CACHE/check_updates 2>/dev/null)
 due=$((${mtime:-0} + (RANDOM % INTERVAL_RAND + INTERVAL_FIXED) * 60))
