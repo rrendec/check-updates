@@ -26,24 +26,26 @@ int_sleep() {
 trap cleanup EXIT
 trap signal SIGUSR1
 
+mtime=$(stat -c '%Y' $CACHE/check_updates 2>/dev/null)
+due=$((${mtime:-0} + (RANDOM % INTERVAL_RAND + INTERVAL_FIXED) * 60))
+now=$(date '+%s')
+delay=$((due > now ? due - now : 1))
+retry=1
 while true; do
-	if [[ -f $CACHE/check_updates ]]; then
-		int_sleep $(((RANDOM % 30 + 240) * 60))
+	echo "Sleeping $delay second(s)"
+	int_sleep $delay
+	echo "Starting cache update ($retry)"
+	$LIB/check_updates $OPTS 1>$TMP/out 2>$TMP/err
+	ret=$?
+	echo $ret >$TMP/ret
+	if [[ $ret -eq 3 && $retry -le 3 ]] && grep -q "Error while executing" $TMP/out; then
+		delay=30
+		retry=$((retry + 1))
+		continue
 	fi
-	echo "Starting cache update"
-	retry=3
-	while [[ $retry -gt 0 ]]; do
-		retry=$((retry - 1))
-		$LIB/check_updates $OPTS 1>$TMP/out 2>$TMP/err
-		ret=$?
-		echo $ret >$TMP/ret
-		if [[ $ret -eq 3 ]] && grep -q "Error while executing" $TMP/out; then
-			int_sleep 30
-			continue
-		fi
-		break
-	done
 	tar cf $CACHE/.check_updates.tmp -C $TMP --remove-files out err ret
 	mv -f $CACHE/.check_updates.tmp $CACHE/check_updates
-	echo "Finished cache update"
+	echo "Finished cache update ($ret)"
+	delay=$(((RANDOM % INTERVAL_RAND + INTERVAL_FIXED) * 60))
+	retry=1
 done
