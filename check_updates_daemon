@@ -24,8 +24,8 @@ while true; do
 	$LIB/check_updates $OPTS 1>$TMP/out 2>$TMP/err
 	ret=$?
 	echo $ret >$TMP/ret
-	if [[ $ret -eq 3 && $retry -le 3 ]] && grep -q "Error while executing" $TMP/out; then
-		delay=30
+	if [[ $ret -eq 3 && $retry -lt 3 ]] && grep -q "Error while executing" $TMP/out; then
+		delay=300
 		retry=$((retry + 1))
 		continue
 	fi
