@@ -12,10 +12,15 @@ signal() {
 	echo "Received signal"
 }
 
+# Note: `sleep` is killed with the USR1 signal to avoid printing a job status
+# message to stderr (e.g. "check_updates_daemon: line 44: 12215 Terminated").
+# This is a hack that relies on the fact that job status is not printed if
+# the job dies of a signal that's trapped, and we're already trapping USR1.
+# See notify_of_job_status() in jobs.c for details.
 int_sleep() {
 	sleep $1 &
 	local cpid=$!
-	wait $cpid || kill $cpid
+	wait $cpid || kill -USR1 $cpid
 }
 
 trap cleanup EXIT
