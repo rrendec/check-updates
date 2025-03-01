@@ -12,18 +12,32 @@ signal() {
 	echo "Received signal"
 }
 
+int_sleep() {
+	sleep $1 &
+	local cpid=$!
+	wait $cpid || kill $cpid
+}
+
 trap cleanup EXIT
 trap signal SIGUSR1
 
 while true; do
 	if [[ -f $CACHE/check_updates ]]; then
-		sleep $(((RANDOM % 30 + 240) * 60)) &
-		cpid=$!
-		wait $cpid || kill $cpid
+		int_sleep $(((RANDOM % 30 + 240) * 60))
 	fi
 	echo "Starting cache update"
-	$LIB/check_updates $OPTS 1>$TMP/out 2>$TMP/err
-	echo $? >$TMP/ret
+	retry=3
+	while [[ $retry -gt 0 ]]; do
+		retry=$((retry - 1))
+		$LIB/check_updates $OPTS 1>$TMP/out 2>$TMP/err
+		ret=$?
+		echo $ret >$TMP/ret
+		if [[ $ret -eq 3 ]] && grep -q "Error while executing" $TMP/out; then
+			int_sleep 30
+			continue
+		fi
+		break
+	done
 	tar cf $CACHE/.check_updates.tmp -C $TMP --remove-files out err ret
 	mv -f $CACHE/.check_updates.tmp $CACHE/check_updates
 	echo "Finished cache update"
