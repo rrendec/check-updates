@@ -49,7 +49,7 @@ make local.pp
 #   dnf install selinux-policy-devel
 #   make -f /usr/share/selinux/devel/Makefile local.pp
 semodule -i local.pp
-semanage fcontext -a -t nrpe_cache_t /var/cache/nrpe
+semanage fcontext -a -t nrpe_cache_t '/var/cache/nrpe(/.*)?'
 restorecon -R /var/cache/nrpe
 ```
 
